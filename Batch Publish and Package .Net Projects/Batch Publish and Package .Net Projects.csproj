@@ -7,6 +7,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>BatchPublishAndPackage</AssemblyName>
+		<AssemblyVersion>0.0.1.0</AssemblyVersion>
+		<FileVersion>$(AssemblyVersion)</FileVersion>
 	</PropertyGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="embedded profiles\Linux - Self-Contained.pubxml" />
