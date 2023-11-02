@@ -6,6 +6,7 @@
 		<RootNamespace>Batch_Publish_and_Package_.Net_Projects</RootNamespace>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AssemblyName>BatchPublishAndPackage</AssemblyName>
 	</PropertyGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="embedded profiles\Linux - Self-Contained.pubxml" />
@@ -24,6 +25,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="cclip.net" Version="0.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
 
 </Project>
