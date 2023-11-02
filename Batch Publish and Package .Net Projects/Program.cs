@@ -1,6 +1,7 @@
 ﻿using cclip;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Reflection;
 
 namespace Batch_Publish_and_Package_.Net_Projects;
 
@@ -13,7 +14,9 @@ internal class Program
         manager.Add(new("p", "path", false, true, "Path to the project folder"));
         manager.Add(new("c", "package", false, false, "Automatically packages the binaries into archive files"));
         manager.Add(new("o", "output", false, true, "The output directory"));
-        manager.Add(new("d", "package-debug", false, false, "Packages the pdb debug files"));
+        manager.Add(new("d", "debug", false, false, "Packages the pdb debug files"));
+        manager.Add(new("e", "embedded", false, false, "If it should use the embedded profiles for windows, mac and linux, ARM and x86, self-contained and framework dependent"));
+
         OptionsParser parser = manager.Parse(args);
         if (parser.IsPresent("v"))
         {
@@ -33,11 +36,10 @@ internal class Program
         Directory.CreateDirectory(output);
 
         bool packageDebug = parser.IsPresent("d");
-
-
+        bool useEmbedded = parser.IsPresent("e");
         bool compress = parser.IsPresent("c");
 
-        string[] pubfiles = GetPubXML(path);
+        string[] pubfiles = useEmbedded ? GetEmbeddedPubXML(path) : GetPubXML(path);
         if (pubfiles.Any())
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -97,6 +99,13 @@ internal class Program
             {
                 Directory.Delete(Path.Combine(output, "tmp"), true);
             }
+            if (useEmbedded)
+            {
+                foreach (string profile in pubfiles)
+                {
+                    File.Delete(profile);
+                }
+            }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Done!");
             Console.ResetColor();
@@ -114,4 +123,43 @@ internal class Program
     }
 
     public static string[] GetPubXML(string path) => Directory.GetFiles(path, "*.pubxml", SearchOption.AllDirectories);
+    public static string[] GetEmbeddedPubXML(string working_directory)
+    {
+        List<string> files = new();
+
+        string[] names = Assembly.GetExecutingAssembly()?.GetManifestResourceNames() ?? Array.Empty<string>();
+        string[] publishDirectories = GetPublishProfilesDirectories(working_directory);
+        foreach (string publishDirectory in publishDirectories)
+        {
+            foreach (string name in names)
+            {
+                if (name.EndsWith(".pubxml"))
+                {
+                    using Stream stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(name) ?? Stream.Null;
+                    using StreamReader reader = new(stream);
+                    string content = reader.ReadToEnd();
+                    string filename = Path.GetFileNameWithoutExtension(name).Split('.').Last() + ".pubxml";
+                    string path = Path.Combine(publishDirectory, filename);
+                    File.WriteAllText(path, content);
+                    files.Add(path);
+                }
+            }
+        }
+        return files.ToArray();
+    }
+    public static string[] GetPublishProfilesDirectories(string working_dir)
+    {
+        List<string> files = new();
+        string[] csproj = Directory.GetFiles(working_dir, "*.csproj", SearchOption.AllDirectories);
+        foreach (string proj in csproj)
+        {
+            string directory = Directory.GetParent(proj)?.FullName ?? "";
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                files.Add(Directory.CreateDirectory(Path.Combine(directory, "Properties", "PublishProfiles")).FullName);
+            }
+        }
+
+        return files.ToArray();
+    }
 }
