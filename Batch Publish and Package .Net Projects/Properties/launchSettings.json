@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Batch Publish and Package .Net Projects": {
+      "commandName": "Project",
+      "commandLineArgs": "-c -o \"$(SolutionDir)archives\" -p \"$(SolutionDir)\""
+    }
+  }
+}
