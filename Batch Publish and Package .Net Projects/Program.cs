@@ -20,7 +20,11 @@ internal class Program
         OptionsParser parser = manager.Parse(args);
         if (parser.IsPresent("v"))
         {
-            Console.WriteLine("Batch Publish and Package .Net Projects v0.0.1");
+            Version version = Assembly.GetExecutingAssembly().GetName().Version??new(0,0,0);
+            Console.Write("Batch Publish and Package .Net Projects");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($" v{version}");
+            Console.ResetColor();
             return;
         }
 

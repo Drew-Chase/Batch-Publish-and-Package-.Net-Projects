@@ -3,6 +3,10 @@
     "Batch Publish and Package .Net Projects": {
       "commandName": "Project",
       "commandLineArgs": "-c -e -o \"$(SolutionDir)archives\" -p \"$(SolutionDir)\""
+    },
+    "Version": {
+      "commandName": "Project",
+      "commandLineArgs": "-v"
     }
   }
 }
